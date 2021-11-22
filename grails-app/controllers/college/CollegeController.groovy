@@ -6,62 +6,44 @@ class CollegeController {
 
     static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE"]
 
+    def collegeService
+    def validationService
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        render College.list(params) as JSON
+        def colleges = collegeService.getAllColleges()
+        render colleges as JSON
     }
 
     def show() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def college = College.findById(id)
-
-        if (!college) {
-            render 'Invalid Id'
-            return
-        }
-        render college as JSON
-
+        result = collegeService.getCollegeById(id)
+        render result as JSON
     }
 
     def create(College college) {
-        if (!college.save()) {
-            render "Unable to create college beacuse of ${college.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "College created with name: ${college.name}"
+        def result = collegeService.createCollege(college)
+        render result as JSON
     }
 
     def update(College college) {
-        def instance = College.findById(college.id)
-        if (!college) {
-            render 'Invalid Id'
-            return
-        }
-        bindData(instance, college)
-        if (!instance.save(flush: true)) {
-            render "Unable to update college beacuse of ${instance.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "College updated with name: ${instance.id},${instance.name}"
+        def result = collegeService.updateCollege(college)
+        render result as JSON
     }
 
     def delete() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def college = College.findById(id)
-
-        if (!college) {
-            render 'Invalid Id'
-            return
-        }
-        college.delete(flush: true)
-        render 'college deleted'
+        result = collegeService.deleteCollege(id)
+        render result as JSON
     }
 }
