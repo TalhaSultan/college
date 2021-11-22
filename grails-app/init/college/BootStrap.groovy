@@ -21,9 +21,9 @@ class BootStrap {
                 [ name: 'BBA_COURSE_1', department: 'BBA'],
                 [ name: 'BBA_COURSE_2', department: 'CS'],
                 [ name: 'SE_COURSE_1', department: 'SE'],
-                [ name: 'SE_COURSE_1', department: 'SE'],
+                [ name: 'SE_COURSE_2', department: 'SE'],
                 [ name: 'CHEM_COURSE_1', department: 'CHEM'],
-                [ name: 'CHEM_COURSE_1', department: 'CHEM'],
+                [ name: 'CHEM_COURSE_2', department: 'CHEM'],
         ]
 
         departments.each { department ->

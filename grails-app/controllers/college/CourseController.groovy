@@ -6,6 +6,9 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class CourseController {
 
+    def courseService
+    def validationService
+
     static allowedMethods = [
             create: "POST",
             update: "PUT",
@@ -16,124 +19,91 @@ class CourseController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        render Course.list(params) as JSON
+        def courses = courseService.getAllCourses()
+        render courses as JSON
     }
 
     def show() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def course = Course.findById(id)
-
-        if (!course) {
-            render 'Invalid Id'
-        } else {
-            render course as JSON
-        }
+        result = courseService.getCourseById(id)
+        render result as JSON
     }
 
     def create(Course course) {
-        if (!course.save()) {
-            render "Unable to create course beacuse of ${course.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "Course created with name: ${course.name}"
-    }
-
-    def edit(Course courses) {
-        respond courses
+        def result = courseService.createCourse(course)
+        render result as JSON
     }
 
     def update(Course course) {
-        def courseIns = Course.findById(course.id)
-        if (!courseIns) {
-            render 'Invalid Id'
-            return
-        }
-        bindData(courseIns, course)
-        if (!courseIns.save(flush: true)) {
-            render "Unable to update course beacuse of ${courseIns.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "Course updated with name: ${courseIns.id},${courseIns.name}"
+        def result = courseService.updateCourse(course)
+        render result as JSON
     }
 
     def delete() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def course = Course.findById(id)
-
-        if (!course) {
-            render 'Invalid Id'
-            return
-        }
-        course.delete(flush: true)
-        render 'Course deleted'
+        result = courseService.deleteCourse(id)
+        render result as JSON
     }
 
     def students(){
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def course = Course.findById(id)
-
-        if (!course) {
-            render 'Invalid Id'
-            return
-        }
-        render course.students as JSON
+        def students = courseService.getStudents(id)
+        render students as JSON
     }
 
     def register(){
         def data = request.JSON
         def studentId = data.student
         def courseId = data.course
-        if(!courseId || !studentId){
-            render 'Please provide student and course id'
+
+        def result = validationService.validateId(studentId, 'Student')
+        if (result) {
+            render result as JSON
             return
         }
-        def course = Course.findById(courseId)
-        def student = Student.findById(studentId)
-        if(!course || !student){
-            render 'Please provide valid student and course id'
+        result = validationService.validateId(courseId, 'Course')
+        if (result) {
+            render result as JSON
             return
         }
-        course.addToStudents(student)
-        if(!course.save(flush: true)){
-            println("register error:${course.errors}")
-            render 'Unable to register student'
-            return
-        }
-        render "Student ${student.name} registerd for course ${course.name}"
+
+        result = courseService.registerStudent(courseId, studentId)
+
+        render result as JSON
     }
 
     def unregister(){
         def data = request.JSON
         def studentId = data.student
         def courseId = data.course
-        if(!courseId || !studentId){
-            render 'Please provide student and course id'
+        def result = validationService.validateId(studentId, 'Student')
+        if (result) {
+            render result as JSON
             return
         }
-        def course = Course.findById(courseId)
-        def student = Student.findById(studentId)
-        if(!course || !student){
-            render 'Please provide valid student and course id'
+        result = validationService.validateId(courseId, 'Course')
+        if (result) {
+            render result as JSON
             return
         }
-        course.removeFromStudents(student)
-        if(!course.save(flush: true)){
-            println("register error:${course.errors}")
-            render 'Unable to register student'
-            return
-        }
-        render "Student ${student.name} unregisterd for course ${course.name}"
+
+        result = courseService.unregisterStudent(courseId, studentId)
+
+        render result as JSON
     }
 }

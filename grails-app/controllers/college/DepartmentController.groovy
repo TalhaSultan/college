@@ -6,77 +6,56 @@ class DepartmentController {
 
     static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE"]
 
+    def departmentService
+    def validationService
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        render Department.list(params) as JSON
+        def departments = departmentService.getAllDepartments()
+        render departments as JSON
     }
 
     def show() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def departments = Department.findById(id)
-
-        if (!departments) {
-            render 'Invalid Id'
-            return
-        }
-        render departments as JSON
+        result = departmentService.getDepartmentById(id)
+        render result as JSON
 
     }
 
-    def students(){
+    def students() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def departments = Department.findById(id)
-
-        if (!departments) {
-            render 'Invalid Id'
-            return
-        }
-        render departments.students as JSON
+        def students = departmentService.getStudents(id)
+        render students as JSON
     }
 
     def create(Department departments) {
-        if (!departments.save()) {
-            render "Unable to create department beacuse of ${departments.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "Department created with name: ${departments.name}"
+        def result = departmentService.createDepartment(departments)
+        render result as JSON
     }
 
     def update(Department departments) {
-        def dept = Department.findById(departments.id)
-        if (!departments) {
-            render 'Invalid Id'
-            return
-        }
-        bindData(dept, departments)
-        if (!dept.save(flush: true)) {
-            render "Unable to update department beacuse of ${dept.errors.allErrors.defaultMessage.join(',')}"
-            return
-        }
-        render "Department updated with name: ${dept.id},${dept.name}"
+        def result = departmentService.updateDepartment(departments)
+        render result as JSON
     }
 
     def delete() {
         def id = params.long('id')
-        if (!id) {
-            render 'Please provide id'
+        def result = validationService.validateId(id)
+        if (result) {
+            render result as JSON
             return
         }
-        def departments = Department.findById(id)
-
-        if (!departments) {
-            render 'Invalid Id'
-            return
-        }
-        departments.delete(flush: true)
-        render 'department deleted'
+        result = departmentService.deleteDepartment(id)
+        render result as JSON
     }
 }
