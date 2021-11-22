@@ -2,10 +2,10 @@
 # Overview
 This is the grails based application for college managment system.
 ## Stack
-Grails: A powerful Groovy-based web application framework for the JVM built on top of Spring Boot
-JDK: 1.8
-grails: 3.2.6
-IDE: IntelliJ IDEA
+- Grails: A powerful Groovy-based web application framework for the JVM built on top of Spring Boot
+- JDK: 1.8
+- grails: 3.2.6
+- IDE: IntelliJ IDEA
 
 ## Getting Started
 - Clone repository in to a directory
@@ -36,4 +36,4 @@ IDE: IntelliJ IDEA
     - username (sa)
     - hit connect
 ## Rest Endpoints
-    - adding postman collection in root directory with name (college.postman_collection.json)
+- adding postman collection in root directory with name (college.postman_collection.json)
